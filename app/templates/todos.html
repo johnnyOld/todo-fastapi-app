@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Задачи{% endblock %}
+
+{% block content %}
+<style>
+  .sticky-form {
+    position: sticky;
+    top: 80px;
+    z-index: 1000;
+  }
+</style>
+
+<!-- Хедер -->
+<nav class="navbar navbar-light bg-white border-bottom mb-3">
+  <div class="container d-flex justify-content-between align-items-center">
+    <h4 class="fw-bold m-0">📋 Мои задачи</h4>
+    <div class="d-flex align-items-center gap-3">
+      <span class="text-muted">Привет, {{ username }}</span>
+      <a href="/logout" class="btn btn-sm btn-outline-secondary">Выйти</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="row">
+    <!-- Левая колонка: задачи -->
+    <div class="col-lg-8">
+
+      <!-- Карточки задач -->
+      {% if todos %}
+        {% for todo in todos %}
+          <div class="card mb-3 shadow-sm {% if todo.completed %}border-success{% endif %}">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h5 class="card-title {{ 'text-decoration-line-through text-muted' if todo.completed }}">{{ todo.title }}</h5>
+                  {% if todo.description %}
+                    <p class="card-text">{{ todo.description }}</p>
+                  {% endif %}
+                  <small class="text-muted">
+                    {% if todo.created_at %}Создано: {{ todo.created_at.astimezone().strftime('%d.%m.%Y') }}{% endif %}
+                    {% if todo.due_date %}| Дедлайн: {{ todo.due_date.astimezone().strftime('%d.%m.%Y') }}{% endif %}
+                  </small>
+                  <div class="mt-2">
+                    {% if todo.completed %}
+                      <span class="badge bg-success">✅ Завершено</span>
+                    {% else %}
+                      <span class="badge bg-warning text-dark">🕒 В процессе</span>
+                    {% endif %}
+                    {% if todo.priority == 3 %}
+                      <span class="badge bg-danger">🔥 Высокий</span>
+                    {% elif todo.priority == 2 %}
+                      <span class="badge bg-primary">⚠ Средний</span>
+                    {% else %}
+                      <span class="badge bg-secondary">⬇ Низкий</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                  <form method="post" action="/todo/{{ todo.id }}/toggle">
+                    <button class="btn btn-sm btn-outline-success" type="submit">
+                      {{ '↩ В работу' if todo.completed else '✓ Завершить' }}
+                    </button>
+                  </form>
+                  <form method="post" action="/todo/{{ todo.id }}/delete">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">🗑 Удалить</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="alert alert-info">У вас пока нет задач. Добавьте первую!</div>
+      {% endif %}
+    </div>
+
+    <!-- Правая колонка: фильтр и добавление -->
+    <div class="col-lg-4">
+      <!-- Фильтр -->
+      <div class="card mb-4 sticky-form">
+        <div class="card-body">
+          <form method="get">
+            <label class="form-label">Фильтр по приоритету</label>
+            <select class="form-select" name="priority" onchange="this.form.submit()">
+              <option value="">Все</option>
+              <option value="3" {% if request.query_params.get('priority') == '3' %}selected{% endif %}>🔥 Высокий</option>
+              <option value="2" {% if request.query_params.get('priority') == '2' %}selected{% endif %}>⚠ Средний</option>
+              <option value="1" {% if request.query_params.get('priority') == '1' %}selected{% endif %}>⬇ Низкий</option>
+            </select>
+          </form>
+        </div>
+      </div>
+
+      <!-- Добавление задачи -->
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">➕ Новая задача</h5>
+          <form method="post" action="/todo/create">
+            <div class="mb-2">
+              <input type="text" class="form-control" name="title" placeholder="Название" required>
+            </div>
+            <div class="mb-2">
+              <textarea class="form-control" name="description" rows="2" placeholder="Описание"></textarea>
+            </div>
+            <div class="mb-2">
+              <input type="date" class="form-control" name="due_date">
+            </div>
+            <div class="mb-2">
+              <select class="form-select" name="priority">
+                <option value="1">⬇ Низкий</option>
+                <option value="2">⚠ Средний</option>
+                <option value="3">🔥 Высокий</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Добавить</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

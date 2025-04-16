@@ -29,10 +29,10 @@ python -m venv .venv
 source .venv/bin/activate  # для Mac/Linux
 pip install -r requirements.txt
 uvicorn app.main:app --reload
-
-🔗 Демо и доступ
+```
+## 🔗 Демо и доступ
 	•	🖥 Демо: [в процессе VPS]
 	•	📂 Исходники: [https://github.com/johnnyOld/todo-fastapi-app]
 
-👨‍💻 Автор
+## 👨‍💻 Автор
 Johnny Old — начинающий Python backend разработчик с опытом в FastAPI, SQL и Telegram API.
